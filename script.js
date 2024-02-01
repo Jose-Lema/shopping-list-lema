@@ -3,6 +3,8 @@ const itemForm = document.getElementById('item-form');
 const itemInput = document.getElementById('item-input');
 const itemList = document.getElementById('item-list');
 const clearBtn = document.getElementById('clear');
+const itemFilter = document.getElementById('filter');
+
 
 function addItem(e) {
     e.preventDefault();
@@ -24,6 +26,8 @@ function addItem(e) {
     li.appendChild(button);
     itemList.appendChild(li);
     itemInput.value = "";
+    // Verifies that item(s) are present
+    checkState();
 }
 
 function createButton(classes) {
@@ -42,16 +46,53 @@ function createIcon(classes) {
 
 function removeItem(e) {
     if (e.target.parentElement.classList.contains('remove-item')) {
-        e.target.parentElement.parentElement.remove();
+        if (confirm('Are you sure you want to delete the item?')) {
+            e.target.parentElement.parentElement.remove();
+        }
+        checkState();
     }
 }
 
 function clearItems() {
-    while (itemList.firstChild) {
-        itemList.removeChild(itemList.firstChild);
+    if(confirm('Are you sure you wish to remove all items?')) {
+        while (itemList.firstChild) {
+            itemList.removeChild(itemList.firstChild);
+        }
+    }
+
+    checkState();
+}
+
+function filterItems (e) {
+    const items = itemList.querySelectorAll('li');
+    const text = e.target.value.toLowerCase();
+    items.forEach((item) => {
+        const itemName = item.firstChild.textContent.toLowerCase();
+        console.log(itemName);
+        if (itemName.indexOf(text) != -1) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function checkState() {
+    const items = itemList.querySelectorAll('li');
+
+    if (items.length === 0) {
+        itemFilter.style.display = 'none';
+        clearBtn.style.display = 'none';
+    } else {
+        itemFilter.style.display = 'block';
+        clearBtn.style.display = 'block';
     }
 }
+
 // Event Listeners
 itemForm.addEventListener('submit', addItem);
 itemList.addEventListener('click', removeItem)
 clearBtn.addEventListener('click', clearItems)
+itemFilter.addEventListener('input', filterItems)
+
+checkState();
