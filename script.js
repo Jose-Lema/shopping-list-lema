@@ -6,9 +6,8 @@ const clearBtn = document.getElementById('clear');
 const itemFilter = document.getElementById('filter');
 
 
-function addItem(e) {
+function onAddItemSubmit(e) {
     e.preventDefault();
-
     const newItem = itemInput.value;
   
     // Validate Input
@@ -16,18 +15,43 @@ function addItem(e) {
       alert('Please add an item');
       return;
     }
-  
+    // Create item DOM element
+    addItemToDOM(newItem);
+
+    // Adds item to local storage
+    addItemToStorage(newItem);
+
+    // Resets the add item input
+    itemInput.value = "";
+    
+    // Verifies that item(s) are present
+    checkState();
+}
+
+function addItemToDOM(item) {
     // Actually make list
     const li = document.createElement('li');
-    li.appendChild(document.createTextNode(newItem));
-
+    li.appendChild(document.createTextNode(item));
+    
     // Make close button
     const button = createButton('remove-item btn-link text-red');
     li.appendChild(button);
     itemList.appendChild(li);
-    itemInput.value = "";
-    // Verifies that item(s) are present
-    checkState();
+    
+}
+
+function addItemToStorage(item) {
+    let itemsFromStorage;
+    // Gets current local storage items, if any
+    if(localStorage.getItem('items') === null) {
+        itemsFromStorage = [];
+    } else {
+        itemsFromStorage = JSON.parse(localStorage.getItem('items'));
+    }
+    // Adds new item into the array to be stringified
+    itemsFromStorage.push(item);
+    // Stringfy all the current objects including the one passed in to be placed in local storage
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage));
 }
 
 function createButton(classes) {
@@ -90,7 +114,7 @@ function checkState() {
 }
 
 // Event Listeners
-itemForm.addEventListener('submit', addItem);
+itemForm.addEventListener('submit', onAddItemSubmit);
 itemList.addEventListener('click', removeItem)
 clearBtn.addEventListener('click', clearItems)
 itemFilter.addEventListener('input', filterItems)
